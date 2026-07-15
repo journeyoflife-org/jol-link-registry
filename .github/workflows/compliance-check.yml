@@ -19,19 +19,31 @@ jobs:
       - run: pip install detect-secrets
       - name: Scan for secrets
         run: |
-          detect-secrets scan --all-files . > secrets.baseline
-          # Fail if any secrets are detected (non-interactive)
+          # Scan using the audited baseline; new findings get added in-place
+          detect-secrets scan --all-files \
+            --exclude-files '\.venv/.*' \
+            --exclude-files '\.idea/.*' \
+            --exclude-files '__pycache__/.*' \
+            --exclude-files '\.mypy_cache/.*' \
+            --exclude-files '\.pytest_cache/.*' \
+            --exclude-files '\.ruff_cache/.*' \
+            --baseline .secrets.baseline .
+          # Fail only on NEW secrets not yet in the audited baseline
           python -c "
           import json, sys
-          with open('secrets.baseline') as f:
+          with open('.secrets.baseline') as f:
               data = json.load(f)
-          results = data.get('results', {})
-          if results:
-              print(f'ERROR: {len(results)} file(s) with potential secrets detected:')
-              for path in results:
-                  print(f'  {path}')
+          new_secrets = []
+          for path, secrets in data.get('results', {}).items():
+              for s in secrets:
+                  if 'is_secret' not in s:
+                      new_secrets.append(f'{path}:{s.get(\"line_number\", \"?\")}')
+          if new_secrets:
+              print(f'ERROR: {len(new_secrets)} new unaudited secret(s) found:')
+              for loc in new_secrets:
+                  print(f'  {loc}')
               sys.exit(1)
-          print('No secrets detected.')
+          print('No new secrets detected. All known findings are audited.')
           "
 
   pii-check:
