@@ -22,6 +22,6 @@ class ValidationService:
         blocked_prefixes = ("127.", "10.", "172.16.", "172.17.", "192.168.", "169.254.")
         if any(hostname.startswith(prefix) for prefix in blocked_prefixes):
             return False
-        if hostname in ("localhost", "0.0.0.0", "[::1]"):
+        if hostname in ("localhost", "0.0.0.0", "[::1]"):  # nosec B104
             return False
         return True

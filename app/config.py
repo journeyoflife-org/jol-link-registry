@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     app_env: str = "development"
     app_debug: bool = False
-    app_host: str = "0.0.0.0"
+    app_host: str = "0.0.0.0"  # nosec B104
     app_port: int = 8000
 
     database_url: str = "postgresql+asyncpg://registry:registry@localhost:5432/jol_registry"
