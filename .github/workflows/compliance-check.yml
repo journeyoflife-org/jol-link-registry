@@ -1,0 +1,55 @@
+name: Compliance Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install detect-secrets
+      - name: Scan for secrets
+        run: |
+          detect-secrets scan --all-files . > secrets.baseline
+          # Fail if any secrets are detected (non-interactive)
+          python -c "
+          import json, sys
+          with open('secrets.baseline') as f:
+              data = json.load(f)
+          results = data.get('results', {})
+          if results:
+              print(f'ERROR: {len(results)} file(s) with potential secrets detected:')
+              for path in results:
+                  print(f'  {path}')
+              sys.exit(1)
+          print('No secrets detected.')
+          "
+
+  pii-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: python scripts/verify_zero_pii.py
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install bandit[toml]
+      - run: bandit -c pyproject.toml -r app/

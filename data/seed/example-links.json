@@ -1,0 +1,42 @@
+{
+  "categories": [
+    {
+      "name": "Healthcare Institutions",
+      "slug": "healthcare",
+      "description": "Hospitals, clinics, and health organizations across the EU."
+    },
+    {
+      "name": "Government Portals",
+      "slug": "government",
+      "description": "Official government websites and public service portals."
+    },
+    {
+      "name": "Educational Institutions",
+      "slug": "education",
+      "description": "Universities, schools, and educational organizations."
+    }
+  ],
+  "links": [
+    {
+      "url": "https://example-hospital.de",
+      "title": "Example Hospital Berlin",
+      "description": "Major hospital in Berlin, Germany.",
+      "country_code": "DE",
+      "category_slug": "healthcare"
+    },
+    {
+      "url": "https://example-gov.fr",
+      "title": "French Government Portal",
+      "description": "Official government services portal.",
+      "country_code": "FR",
+      "category_slug": "government"
+    },
+    {
+      "url": "https://example-university.nl",
+      "title": "Example University Amsterdam",
+      "description": "Leading research university in the Netherlands.",
+      "country_code": "NL",
+      "category_slug": "education"
+    }
+  ]
+}

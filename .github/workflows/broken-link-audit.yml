@@ -1,0 +1,63 @@
+name: Broken Link Audit
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check documentation links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --exclude-mail
+            --accept 200,204,301,302
+            './README.md'
+            './docs/**/*.md'
+          fail: true
+
+      - name: Check exported registry links
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install httpx
+      - name: Validate exported links
+        run: |
+          python -c "
+          import asyncio, json, sys
+          from pathlib import Path
+          import httpx
+
+          EXPORTS = Path('data/exports')
+          if not EXPORTS.exists() or not list(EXPORTS.glob('*.json')):
+              print('No export files found — skipping.')
+              sys.exit(0)
+
+          broken = []
+          for f in EXPORTS.glob('*.json'):
+              data = json.loads(f.read_text())
+              urls = [r.get('url') or r.get('canonical_url', '') for r in data if isinstance(r, dict)]
+              for url in urls:
+                  if not url:
+                      continue
+                  try:
+                      resp = httpx.head(url, follow_redirects=True, timeout=10)
+                      if resp.status_code >= 400:
+                          broken.append((url, resp.status_code))
+                  except Exception:
+                      broken.append((url, 'timeout'))
+
+          if broken:
+              print(f'BROKEN LINKS DETECTED ({len(broken)}):')
+              for url, code in broken:
+                  print(f'  {url} — {code}')
+              sys.exit(1)
+          print('All exported links are healthy.')
+          "

@@ -1,0 +1,18 @@
+version: "1.0"
+
+profile:
+  name: qodana.recommended
+
+include:
+  - name: CheckDependencyLicenses
+
+exclude:
+  - name: All
+    paths:
+      - .venv
+      - migrations/versions
+      - data
+      - docs
+
+bootstrap: |
+  pip install -e ".[dev]"
