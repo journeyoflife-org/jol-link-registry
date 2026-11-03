@@ -1,0 +1,18 @@
+[tools]
+python = "3.12"
+
+[tasks.deps]
+description = "Install app + dev extras exactly as CI does (pip editable, unchanged)"
+run = "pip install -e \".[dev]\""
+
+[tasks.lint]
+description = "ruff + format + mypy (mirrors CI lint job)"
+run = "ruff check . && ruff format --check . && mypy app tests"
+
+[tasks.test]
+description = "pytest with coverage gate (mirrors CI test job)"
+run = "pytest -q --cov=app --cov-report=term-missing --cov-fail-under=85"
+
+[tasks.zero-pii]
+description = "PII contract checks (mirrors CI zero-pii job)"
+run = "python scripts/verify_zero_pii.py && pytest -q tests/test_zero_pii_contract.py"

@@ -14,9 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - name: Install mise (pinned)
+        uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac  # v2
         with:
-          python-version: "3.12"
+          version: "2026.11.0"
+      - name: Create venv on PATH
+        run: |
+          python -m venv .venv
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
       - run: pip install -e ".[dev]"
       - run: ruff check .
       - run: ruff format --check .
@@ -26,9 +31,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - name: Install mise (pinned)
+        uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac  # v2
         with:
-          python-version: "3.12"
+          version: "2026.11.0"
+      - name: Create venv on PATH
+        run: |
+          python -m venv .venv
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
       - run: pip install -e ".[dev]"
       - run: pytest -q --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=85
       - uses: actions/upload-artifact@v7
@@ -41,9 +51,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - name: Install mise (pinned)
+        uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac  # v2
         with:
-          python-version: "3.12"
+          version: "2026.11.0"
+      - name: Create venv on PATH
+        run: |
+          python -m venv .venv
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
       - run: pip install -e ".[dev]"
       - run: python scripts/verify_zero_pii.py
       - run: pytest -q tests/test_zero_pii_contract.py
